@@ -1,0 +1,21 @@
+{
+  "name": "ipa2diawi",
+  "version": "0.0.1",
+  "description": "Upload .ipa to diawi.com",
+  "main": "ipa2diawi.js",
+  "dependencies": {
+    "request": "^2.67.0",
+    "randomstring": "^1.1.3"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@bitbucket.org/agoulfightclub/xamarin.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "homepage": "https://bitbucket.org/agoulfightclub/xamarin#readme"
+}
