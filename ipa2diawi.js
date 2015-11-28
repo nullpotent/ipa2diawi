@@ -104,7 +104,7 @@ Uploader.prototype.getChunk = function() {
     if (this.chunk >= this.chunks) {
         return null;
     }
-    
+
     var chunkOffset = (this.chunk * this.chunkSize);
     var nextChunkSize = Math.min(this.chunkSize, this.file.length - chunkOffset);
     var blob = this.getBlob(chunkOffset, chunkOffset + nextChunkSize);
@@ -124,7 +124,7 @@ Uploader.prototype.getChunk = function() {
 };
 
 function printUsage() {
-    console.log("Usage: " + path.basename(process.argv[1]) + " [path/to/app")
+    console.log("Usage: node " + path.basename(process.argv[1]) + " [path/to/app")
 }
 
 if (process.argv.length < 3) {

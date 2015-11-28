@@ -4,7 +4,7 @@ Uploads .ipa or .zip (.app) files to http://www.diawi.com for ad hoc distributio
 Download link is shown on stdout when upload finishes.
 
 ## Usage
-./ipa2diawi.js path/to/app
+node ipa2diawi.js path/to/app
 
 ---
 ###### Hint
