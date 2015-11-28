@@ -1,7 +1,7 @@
 {
   "name": "ipa2diawi",
   "version": "0.0.1",
-  "description": "Upload .ipa to diawi.com",
+  "description": "Upload .ipa or .zip (.app) files to diawi.com for ad hoc distribution",
   "main": "ipa2diawi.js",
   "dependencies": {
     "request": "^2.67.0",
@@ -13,9 +13,9 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@bitbucket.org/agoulfightclub/xamarin.git"
+    "url": "git@github.com:iccthedral/ipa2diawi.git"
   },
   "author": "",
   "license": "ISC",
-  "homepage": "https://bitbucket.org/agoulfightclub/xamarin#readme"
+  "homepage": "https://github.com/iccthedral/ipa2diawi"
 }
