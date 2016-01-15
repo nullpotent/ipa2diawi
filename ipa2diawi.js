@@ -6,8 +6,8 @@ request = require("request")
 randomstring = require("randomstring")
 querystring = require("querystring")
 
-UPLOAD_URL = "http://www.diawi.com/upload.php";
-RESULT_URL = "http://www.diawi.com/result.php";
+UPLOAD_URL = "https://www.diawi.com/upload.php";
+RESULT_URL = "https://www.diawi.com/result.php";
 SUPPORTED_EXTENSIONS = [".ipa", ".zip", ".app"];
 CHUNK_SIZE = 1024 * 1024; // 1mb
 
@@ -50,7 +50,7 @@ Uploader.prototype.exitWithError = function(err) {
 
 Uploader.prototype.uploadChunk = function() {
     var chunk = this.getChunk(this.file);
-
+    
     if (chunk != null) {
         request.post({url: UPLOAD_URL, formData: chunk}, (function(err, res, body) {
             if (err) {
@@ -84,8 +84,8 @@ Uploader.prototype.fetchDownloadLink = function() {
                 }
                 console.log(json.url);
                 process.exit(0);
-            } catch (e) {
-                this.exitWithError("Couldn't fetch the download url");
+            } catch (err) {
+                this.exitWithError(err);
             }
         }
     }).bind(this));
@@ -104,11 +104,11 @@ Uploader.prototype.getChunk = function() {
     if (this.chunk >= this.chunks) {
         return null;
     }
-
+    
     var chunkOffset = (this.chunk * this.chunkSize);
     var nextChunkSize = Math.min(this.chunkSize, this.file.length - chunkOffset);
     var blob = this.getBlob(chunkOffset, chunkOffset + nextChunkSize);
-
+    
     return {
         chunk: this.chunk++,
         chunks: this.chunks,
@@ -124,7 +124,7 @@ Uploader.prototype.getChunk = function() {
 };
 
 function printUsage() {
-    console.log("Usage: node " + path.basename(process.argv[1]) + " [path/to/app")
+    console.log("Usage: node " + path.basename(process.argv[1]) + " path/to/app.ipa")
 }
 
 if (process.argv.length < 3) {
