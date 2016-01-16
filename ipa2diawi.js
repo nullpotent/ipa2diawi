@@ -1,34 +1,44 @@
-#!/usr/bin/env node
+var fs = require("fs"),
+    path = require("path"),
+    request = require("request"),
+    randomstring = require("randomstring"),
+    querystring = require("querystring"),
+    util = require("util"),
+    EventEmitter = require("events")
+    ;
 
-fs = require("fs")
-path = require("path")
-request = require("request")
-randomstring = require("randomstring")
-querystring = require("querystring")
+var UPLOAD_URL = "https://www.diawi.com/upload.php",
+    RESULT_URL = "https://www.diawi.com/result.php",
+    SUPPORTED_EXTENSIONS = [".ipa", ".zip", ".app"],
+    CHUNK_SIZE = 1024 * 1024 // 1Mb
+    ;
 
-UPLOAD_URL = "https://www.diawi.com/upload.php";
-RESULT_URL = "https://www.diawi.com/result.php";
-SUPPORTED_EXTENSIONS = [".ipa", ".zip", ".app"];
-CHUNK_SIZE = 1024 * 1024; // 1mb
+var Uploader = function(opts) {
+    if (!opts) {
+        opts = {};
+    }
 
-function Uploader(filePath) {
-    this.filePath = filePath.trim();
-    this.extension = path.extname(this.filePath);
+    this.constructor.super_();
+    this.chunkSize = opts.chunkSize | CHUNK_SIZE;
+    this.path = opts.path.trim();
+    this.extension = path.extname(this.path);
 
     if (SUPPORTED_EXTENSIONS.indexOf(this.extension) === -1) {
-        this.exitWithError("Unsupported file extension " + this.extension);
+        this.emit("error", new Error("Unsupported file extension " + this.extension));
     }
 
     this.chunk = 0;
-    this.fileName = path.basename(this.filePath);
+    this.fileName = path.basename(this.path);
     this.tempName = this.generateTempName();
-    this.chunkSize = CHUNK_SIZE;
-    fs.readFile(this.filePath, this.onFileLoaded.bind(this));
+    fs.readFile(this.path, this.onFileLoaded.bind(this));
 };
+
+util.inherits(Uploader, EventEmitter);
 
 Uploader.prototype.onFileLoaded = function(err, file) {
     if (err) {
-        this.exitWithError(err);
+        this.emit("error", new Error(err));
+        return;
     }
     this.chunks = Math.ceil(file.length / this.chunkSize);
     this.file = file;
@@ -38,23 +48,18 @@ Uploader.prototype.onFileLoaded = function(err, file) {
 Uploader.prototype.generateTempName = function() {
     var n = new Date().getTime().toString(32), o;
     for (o = 0; o < 5; o++) {
-        n += Math.floor(Math.random() * 65535).toString(32)
+        n += Math.floor(Math.random() * 65535).toString(32);
     }
     return "p" + n + "0" + this.extension;
 };
 
-Uploader.prototype.exitWithError = function(err) {
-    console.error(err);
-    process.exit(1);
-};
-
 Uploader.prototype.uploadChunk = function() {
-    var chunk = this.getChunk(this.file);
-    
-    if (chunk != null) {
+    var chunk = this.getFormData(this.file);
+
+    if (chunk !== null) {
         request.post({url: UPLOAD_URL, formData: chunk}, (function(err, res, body) {
             if (err) {
-                this.exitWithError(err);
+                this.emit("error", err);
             }
             this.uploadChunk();
         }).bind(this));
@@ -75,17 +80,17 @@ Uploader.prototype.fetchDownloadLink = function() {
         "password": ""
     }}, (function (err, res, body) {
         if (err) {
-            this.exitWithError(err);
+            this.emit("error", err);
         } else {
             try {
                 var json = JSON.parse(body);
                 if (!json.url) {
-                    this.exitWithError("Couldn't fetch the download url")
+                    this.emit("error", new Error("Couldn't parse the json result."));
+                } else {
+                    this.emit("done", json.url);
                 }
-                console.log(json.url);
-                process.exit(0);
             } catch (err) {
-                this.exitWithError(err);
+                this.emit("error", err);
             }
         }
     }).bind(this));
@@ -94,23 +99,23 @@ Uploader.prototype.fetchDownloadLink = function() {
 Uploader.prototype.getBlob = function(offset, size) {
     try {
         this.file.slice();
-        return this.file.slice(offset, size)
+        return this.file.slice(offset, size);
     } catch (e) {
-        return this.file.slice(offset, size - offset)
+        return this.file.slice(offset, size - offset);
     }
 };
 
-Uploader.prototype.getChunk = function() {
+Uploader.prototype.getFormData = function() {
     if (this.chunk >= this.chunks) {
         return null;
     }
-    
+
     var chunkOffset = (this.chunk * this.chunkSize);
     var nextChunkSize = Math.min(this.chunkSize, this.file.length - chunkOffset);
     var blob = this.getBlob(chunkOffset, chunkOffset + nextChunkSize);
-    
+
     return {
-        chunk: this.chunk++,
+        chunk: this.chunk += 1,
         chunks: this.chunks,
         file: {
             value: blob,
@@ -120,16 +125,7 @@ Uploader.prototype.getChunk = function() {
             }
         },
         name: this.tempName
-    }
+    };
 };
 
-function printUsage() {
-    console.log("Usage: node " + path.basename(process.argv[1]) + " path/to/app.ipa")
-}
-
-if (process.argv.length < 3) {
-    printUsage();
-} else {
-    var fileUrl = process.argv[2].trim();
-    new Uploader(fileUrl);
-}
+module.exports = Uploader;
