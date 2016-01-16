@@ -4,7 +4,7 @@ var fs = require("fs"),
     randomstring = require("randomstring"),
     querystring = require("querystring"),
     util = require("util"),
-    EventEmitter = require("events")
+    EventEmitter = require("events").EventEmitter
     ;
 
 var UPLOAD_URL = "https://www.diawi.com/upload.php",
@@ -32,8 +32,6 @@ var Uploader = function(opts) {
     this.tempName = this.generateTempName();
     fs.readFile(this.path, this.onFileLoaded.bind(this));
 };
-
-util.inherits(Uploader, EventEmitter);
 
 Uploader.prototype.onFileLoaded = function(err, file) {
     if (err) {
@@ -128,4 +126,5 @@ Uploader.prototype.getFormData = function() {
     };
 };
 
+util.inherits(Uploader, EventEmitter);
 module.exports = Uploader;
