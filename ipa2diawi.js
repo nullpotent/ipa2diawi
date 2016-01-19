@@ -17,10 +17,10 @@ var Uploader = function(opts) {
     }
     
     this.constructor.super_();
-    this.chunkSize = opts.chunkSize | CHUNK_SIZE;
+    this.chunkSize = opts.chunkSize ? opts.chunkSize : CHUNK_SIZE;
     this.path = opts.path.trim();
     this.extension = path.extname(this.path);
-
+    
     if (SUPPORTED_EXTENSIONS.indexOf(this.extension) === -1) {
         this.emit("error", new Error("Unsupported file extension " + this.extension));
     }
@@ -111,7 +111,7 @@ Uploader.prototype.getFormData = function() {
     var chunkOffset = (this.chunk * this.chunkSize);
     var nextChunkSize = Math.min(this.chunkSize, this.file.length - chunkOffset);
     var blob = this.getBlob(chunkOffset, chunkOffset + nextChunkSize);
-    
+
     return {
         chunk: this.chunk += 1,
         chunks: this.chunks,

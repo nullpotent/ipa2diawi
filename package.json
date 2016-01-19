@@ -1,6 +1,6 @@
 {
   "name": "ipa2diawi",
-  "version": "0.0.3",
+  "version": "0.0.6",
   "description": "Upload .ipa or .zip (.app) files to diawi.com for ad hoc distribution",
   "main": "ipa2diawi.js",
   "dependencies": {
