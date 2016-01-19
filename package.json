@@ -4,18 +4,21 @@
   "description": "Upload .ipa or .zip (.app) files to diawi.com for ad hoc distribution",
   "main": "ipa2diawi.js",
   "dependencies": {
-    "request": "^2.67.0",
-    "randomstring": "^1.1.3"
+    "request": "^2.67.0"
   },
-  "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "preferGlobal": "true",
   "bin": {
-    "ipa2diawi" : "bin/main.js"
+    "ipa2diawi": "bin/main.js"
   },
-  "keywords": ["diawi", "ipa", "adhoc", "ad-hoc"],
+  "keywords": [
+    "diawi",
+    "ipa",
+    "adhoc",
+    "ad-hoc"
+  ],
   "repository": {
     "type": "git",
     "url": "git@github.com:iccthedral/ipa2diawi.git"

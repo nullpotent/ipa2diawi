@@ -1,8 +1,6 @@
 var fs = require("fs"),
     path = require("path"),
     request = require("request"),
-    randomstring = require("randomstring"),
-    querystring = require("querystring"),
     util = require("util"),
     EventEmitter = require("events").EventEmitter
     ;
@@ -17,7 +15,7 @@ var Uploader = function(opts) {
     if (!opts) {
         opts = {};
     }
-
+    
     this.constructor.super_();
     this.chunkSize = opts.chunkSize | CHUNK_SIZE;
     this.path = opts.path.trim();
@@ -26,7 +24,7 @@ var Uploader = function(opts) {
     if (SUPPORTED_EXTENSIONS.indexOf(this.extension) === -1) {
         this.emit("error", new Error("Unsupported file extension " + this.extension));
     }
-
+    
     this.chunk = 0;
     this.fileName = path.basename(this.path);
     this.tempName = this.generateTempName();
@@ -52,8 +50,10 @@ Uploader.prototype.generateTempName = function() {
 };
 
 Uploader.prototype.uploadChunk = function() {
+    var pr = Math.round((this.chunk / this.chunks) * 100);
+    this.emit("progress", pr);
+    
     var chunk = this.getFormData(this.file);
-
     if (chunk !== null) {
         request.post({url: UPLOAD_URL, formData: chunk}, (function(err, res, body) {
             if (err) {
@@ -111,7 +111,7 @@ Uploader.prototype.getFormData = function() {
     var chunkOffset = (this.chunk * this.chunkSize);
     var nextChunkSize = Math.min(this.chunkSize, this.file.length - chunkOffset);
     var blob = this.getBlob(chunkOffset, chunkOffset + nextChunkSize);
-
+    
     return {
         chunk: this.chunk += 1,
         chunks: this.chunks,
